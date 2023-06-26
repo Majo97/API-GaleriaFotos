@@ -12,8 +12,7 @@ class Collection extends Model
     protected $fillable = [
         'title',
         'description',
-        'timestamp',
-        'status',
+        'timestamp'
     ];
 
     public function images()

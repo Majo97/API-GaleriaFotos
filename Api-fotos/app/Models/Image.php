@@ -14,7 +14,6 @@ class Image extends Model
         'title',
         'description',
         'timestamp',
-        'status',
         'type_id',
         'path',
         'disk',
