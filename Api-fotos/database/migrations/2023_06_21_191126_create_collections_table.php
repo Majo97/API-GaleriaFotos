@@ -15,7 +15,7 @@ class CreateCollectionsTable extends Migration
             $table->unsignedInteger('type_id');
             $table->foreign('type_id')->references('id')->on('types');
             $table->timestamps();
-            $table->boolean('status')->default(true);
+            $table->softDeletes(); 
         });
     }
 

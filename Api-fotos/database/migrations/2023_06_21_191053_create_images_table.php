@@ -14,11 +14,11 @@ class CreateImagesTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamps();
-            $table->boolean('status')->default(true);
             $table->unsignedInteger('type_id');
             $table->foreign('type_id')->references('id')->on('types');
             $table->string('path');
             $table->string('disk');
+            $table->softDeletes(); 
         });
     }
 
