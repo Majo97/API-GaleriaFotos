@@ -16,11 +16,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::name('login')->get('/login', function () {
+    // Lógica para mostrar el formulario de inicio de sesión
+});
 // Mostrar formulario de restablecimiento de contraseña
-Route::get('/reset-password/{token}', 'App\Http\Controllers\ResetPasswordController@showResetForm')
+Route::get('/reset-password/{token}')
     ->name('password.reset');
 
 // Restablecer contraseña
-Route::post('/reset-password', 'App\Http\Controllers\ResetPasswordController@reset')
+Route::post('/reset-password')
     ->name('password.update');
 
