@@ -9,8 +9,7 @@ class CreateImagesTable extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->unsignedBigInteger('owner_id');
-            $table->foreign('owner_id')->references('id')->on('users');
+           
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamps();

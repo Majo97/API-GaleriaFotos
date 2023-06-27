@@ -12,6 +12,8 @@ class CreateCollectionsTable extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->text('description')->nullable();
+            $table->unsignedBigInteger('owner_id');
+            $table->foreign('owner_id')->references('id')->on('users');
             $table->unsignedInteger('type_id');
             $table->foreign('type_id')->references('id')->on('types');
             $table->timestamps();

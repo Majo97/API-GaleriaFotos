@@ -6,17 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Support\Facades\Auth;
-
 use Laravel\Sanctum\HasApiTokens;
-
-
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable;
     
     /**
      * The attributes that are mass assignable.
@@ -48,17 +42,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->setDescriptionForEvent(function (string $eventName) {
-                return "El usuario ha {$eventName}";
-            });
-    }
-    protected static $logAttributes = ["email"];
-    protected static $recordEvents = ['created'];
-    public function activityLogsCausedBy()
-    {
-        return $this;
-    }
+
+    
 }
