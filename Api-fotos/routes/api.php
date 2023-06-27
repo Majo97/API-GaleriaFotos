@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ImageController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,7 +16,7 @@ use App\Http\Controllers\CollectionController;
 |
 */
 
-Route::post('/register', [AuthController::class, 'register' ]);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
@@ -28,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/delete-collection/{id}', [CollectionController::class, 'deleteCollection']);
     Route::get('/public-collections', [CollectionController::class, 'getPublicCollections']);
     Route::get('/private-collections', [CollectionController::class, 'getPrivateCollections']);
-  
+    Route::post('/images', [ImageController::class, 'create']);
+    Route::put('/images/{id}', [ImageController::class, 'update']);
+    Route::delete('/images/{id}', [ImageController::class, 'delete']);
 });
-
