@@ -29,35 +29,7 @@ class CollectionService implements CollectionServiceInterface
         }
     }
 
-    public function updateCollection($id, array $data)
-    {
-        try {
-            $collection = Collection::findOrFail($id);
-
-            if ($collection->owner_id !== Auth::id()) {
-                return response()->json([
-                    'code' => 403,
-                    'message' => 'You are not authorized to update this collection',
-                ], 403);
-            }
-
-            $collection->update($data);
-            $collection->createActivityLog('updated');
-
-            return response()->json([
-                'code' => 200,
-                'message' => 'Collection updated successfully',
-                'data' => $collection,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to update collection',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
+   
     public function deleteCollection($id)
     {
         try {
@@ -85,63 +57,102 @@ class CollectionService implements CollectionServiceInterface
             ], 500);
         }
     }
+    public function updateCollection($id, array $data)
+{
+    try {
+        $collection = Collection::findOrFail($id);
 
-    public function getPublicCollections()
-    {
-        try {
-            $publicCollections = Collection::where('type_id', 2)
-                ->get(['id', 'title', 'description', 'owner_id'])
-                ->load('owner:id,name');
-    
-            // Modificar la estructura de la respuesta para mostrar solo el nombre del propietario
-            $publicCollections->transform(function ($collection) {
-                $collection->owner = $collection->owner->only(['id', 'name']);
-                unset($collection->owner_id);
-                return $collection;
-            });
-    
+        if ($collection->owner_id !== Auth::id()) {
             return response()->json([
-                'code' => 200,
-                'message' => 'Public collections retrieved successfully',
-                'data' => $publicCollections,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to retrieve public collections',
-                'error' => $e->getMessage(),
-            ], 500);
+                'code' => 403,
+                'message' => 'You are not authorized to update this collection',
+            ], 403);
         }
+
+        $collection->update($data);
+        $collection->createActivityLog('updated');
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Collection updated successfully',
+            'data' => $collection,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to update collection',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-    
-    public function getPrivateCollections()
-    {
-        try {
-            $userId = Auth::id();
-    
-            $privateCollections = Collection::where('owner_id', $userId)
-                ->get(['id', 'title', 'description', 'owner_id'])
-                ->load('owner:id,name');
-    
-            // Modificar la estructura de la respuesta para mostrar solo el nombre del propietario
-            $privateCollections->transform(function ($collection) {
-                $collection->owner = $collection->owner->only(['id', 'name']);
-                unset($collection->owner_id);
-                return $collection;
-            });
-    
-            return response()->json([
-                'code' => 200,
-                'message' => 'Private collections retrieved successfully',
-                'data' => $privateCollections,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to retrieve private collections',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-    
 }
+
+
+    public function getCollections()
+{
+    try {
+        $userId = Auth::id();
+        $collections = Collection::whereIn('type_id', [1, 2]) 
+            ->where(function ($query) use ($userId) {
+                $query->where('owner_id', $userId) 
+                    ->orWhere('type_id', 2); 
+            })
+            ->get(['id', 'title', 'description', 'owner_id'])
+            ->load('owner:id,name');
+        $collections->transform(function ($collection) {
+            $collection->owner = $collection->owner->only(['id', 'name']);
+            unset($collection->owner_id);
+            return $collection;
+        });
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Collections retrieved successfully',
+            'data' => $collections,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to retrieve collections',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+public function getCollectionWithImages($id)
+{
+    try {
+        $collection = Collection::with('owner:id,name', 'images:id,title,description,path')
+            ->findOrFail($id);
+
+        // Verificar si el usuario autenticado es el propietario de la colección
+        $isOwner = ($collection->owner_id == Auth::id());
+
+        // Filtrar las imágenes según su tipo (públicas o privadas)
+        $filteredImages = $collection->images->filter(function ($image) use ($isOwner) {
+            return ($image->type_id == 2 || $isOwner);
+        });
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Collection retrieved successfully',
+            'data' => [
+                'id' => $collection->id,
+                'title' => $collection->title,
+                'description' => $collection->description,
+                'owner' => $collection->owner,
+                'images' => $filteredImages,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to retrieve collection',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+}
+
+
+
+

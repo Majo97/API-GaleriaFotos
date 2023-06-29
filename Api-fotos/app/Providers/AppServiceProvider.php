@@ -6,6 +6,7 @@ use App\Http\Controllers\CollectionController;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuthService;
 use App\Services\CollectionService;
+use App\Services\ImageService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +21,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(  CollectionService::class, function ($app) {
             return new CollectionService();
         });
-        
+        $this->app->singleton(  ImageService::class, function ($app) {
+            return new ImageService();
+        });
     }
 
     /**

@@ -24,13 +24,13 @@ class CollectionController extends Controller
         return $collectionService->deleteCollection($id);
     }
 
-    public function getPublicCollections(CollectionService $collectionService)
+    public function getCollections(CollectionService $collectionService)
     {
-        return $collectionService->getPublicCollections();
+        return $collectionService->getCollections();
     }
 
-    public function getPrivateCollections(CollectionService $collectionService)
+    public function getCollectionWithImages(CollectionService $collectionService,$id)
     {
-        return $collectionService->getPrivateCollections();
+        return $collectionService->getCollectionWithImages($id);
     }
 }

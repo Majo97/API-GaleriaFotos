@@ -18,6 +18,7 @@ class Image extends Model
         'title',
         'description',
         'type_id',
+        'owner_id',
         'path',
         'disk',
     ];

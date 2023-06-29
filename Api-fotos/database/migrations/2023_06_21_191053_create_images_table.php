@@ -13,6 +13,8 @@ class CreateImagesTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamps();
+            $table->unsignedBigInteger('owner_id');
+            $table->foreign('owner_id')->references('id')->on('users');
             $table->unsignedInteger('type_id');
             $table->foreign('type_id')->references('id')->on('types');
             $table->string('path');

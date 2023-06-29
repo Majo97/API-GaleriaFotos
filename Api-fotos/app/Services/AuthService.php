@@ -22,10 +22,7 @@ class AuthService implements AuthServiceInterface
                 'password' => Hash::make($data['password']),
             ]);
 
-            // Generar token de autenticación
             $token = $user->createToken('auth-token')->plainTextToken;
-
-            // Retornar respuesta exitosa
             return response()->json([
                 'code' => 200,
                 'message' => 'Registered successfully',
@@ -55,7 +52,6 @@ class AuthService implements AuthServiceInterface
             $user = User::where('email', $credentials['email'])->firstOrFail();
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // Retornar respuesta exitosa
             return response()->json([
                 'code' => 200,
                 'message' => 'Logged in successfully',

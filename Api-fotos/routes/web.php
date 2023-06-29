@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+/*Route::get('/', function () {
     return view('welcome');
 });
 Route::name('login')->get('/login', function () {
@@ -25,5 +25,5 @@ Route::get('/reset-password/{token}')
 
 // Restablecer contraseña
 Route::post('/reset-password')
-    ->name('password.update');
+    ->name('password.update');*/
 
