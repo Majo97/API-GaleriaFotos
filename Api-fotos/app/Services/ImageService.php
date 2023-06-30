@@ -20,6 +20,7 @@ class ImageService implements ImageServiceInterface
             $data['disk'] = 'public';
 
             $image = Image::create($data);
+            $image->createActivityLog('created');
 
             return response()->json([
                 'code' => 200,
@@ -38,6 +39,7 @@ class ImageService implements ImageServiceInterface
     try {
         // Obtener el objeto de imagen utilizando el ID
         $image = Image::findOrFail($imageId);
+        $image->createActivityLog('updated');
 
         // Verificar si el usuario autenticado es el propietario de la imagen
         if ($image->owner_id !== Auth::id()) {
@@ -66,6 +68,7 @@ public function deleteImage($image)
 {
     try {
         $image = Image::findOrFail($image); 
+        
 
         if ($image->owner_id !== Auth::id()) {
             return response()->json([
@@ -75,6 +78,7 @@ public function deleteImage($image)
         }
 
         $image->delete();
+        $image->createActivityLog('deleted');
 
         return response()->json([
             'code' => 200,
