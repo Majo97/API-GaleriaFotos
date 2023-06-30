@@ -10,7 +10,7 @@ class CreateActivityLogsTable extends Migration
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->text('description');
-            $table->unsignedBigInteger('causer_id');
+            $table->unsignedBigInteger('causer_id')->nullable();
             $table->foreign('causer_id')->references('id')->on('users');
             $table->uuid('object_id');
             $table->string('object_type');

@@ -67,17 +67,15 @@ class AuthService implements AuthServiceInterface
             ], 500);
         }
     }
-
-    
-    public function logout($token)
+    public function logout()
     {
         try {
-            $token->delete();
+            Auth::logout();
             return response()->json([
                 'code' => 200,
                 'message' => 'Logged out successfully',
             ]);
-
+    
         
         } catch (\Exception $e) {
             return response()->json([
@@ -88,30 +86,35 @@ class AuthService implements AuthServiceInterface
         }
     }
     public function forgotPassword(array $data)
-    {
-        try {
-            $status = Password::sendResetLink($data);
-    
-            if ($status === Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Password reset link sent',
-                    'token' => $status
-                ]);
-            } else {
-                return response()->json([
-                    'code' => 400,
-                    'message' => 'Unable to send password reset link',
-                ], 400);
-            }
-        } catch (\Exception $e) {
+{
+    try {
+        $email = $data['email'];
+        $response = $this->broker()->sendResetLink(['email' => $email]);
+
+        if ($response === Password::RESET_LINK_SENT) {
             return response()->json([
-                'code' => 500,
-                'message' => 'Forgot password failed',
-                'errors' => [$e->getMessage()],
-            ], 500);
+                'code' => 200,
+                'message' => 'A password reset link has been sent to your email.',
+            ]);
         }
-    }    
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to send the password reset link.',
+            'errors' => [$e->getMessage()],
+        ], 500);
+    }
+
+    return response()->json([
+        'code' => 500,
+        'message' => 'An error occurred while processing your request.',
+    ]);
+}
+  
+    protected function broker()
+    {
+        return Password::broker();
+    }
     public function resetPassword(array $data)
     {
         try {

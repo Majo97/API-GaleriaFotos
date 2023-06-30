@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+
+
 
 class CollectionImage extends Model
 {
     use HasFactory;
-
-  
-    protected $fillable = [
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+      protected $fillable = [
         'image_id',
         'collection_id',
     ];
@@ -28,11 +29,6 @@ class CollectionImage extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function ($model) {
-            $model->id = Str::uuid()->toString();
-            $model->createActivityLog('created');
-        });
 
         static::updating(function ($model) {
             $model->createActivityLog('updated');

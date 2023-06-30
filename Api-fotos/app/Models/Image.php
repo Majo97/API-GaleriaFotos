@@ -56,6 +56,7 @@ class Image extends Model
         $activityLog = new ActivityLog();
         $activityLog->description = "Image {$action}: {$this->title}";
         $activityLog->causer_id = auth()->id(); 
+        $activityLog->causer_id = auth()->id() ?: null;
         $activityLog->object_id = $this->id;
         $activityLog->object_type = Image::class;
         $activityLog->previous_data = $this->getOriginal(); 
