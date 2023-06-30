@@ -26,11 +26,20 @@ class ImageController extends Controller
 
     public function addImagesToCollection(ImageService $imageService, Request $request, $collectionId)
     {
-        return $imageService->addImagesToCollection($collectionId, $request->input('image_ids'));
+        $data = [
+            'imageIds' => $request->input('image_ids'),
+        ];
+
+        return $imageService->addImagesToCollection($data, $collectionId);
     }
 
-    public function deleteImagesFromCollection(ImageService $imageService, $collectionId, $imageId)
+    public function deleteImagesFromCollection(ImageService $imageService, $collectionId, Request $request)
     {
-        return $imageService->deleteImagesFromCollection($collectionId, $imageId);
+        $data = [
+            'imageIds' => $request->input('image_ids'),
+        ];
+
+        return $imageService->deleteImagesFromCollection($collectionId, $data);
     }
+    
 }

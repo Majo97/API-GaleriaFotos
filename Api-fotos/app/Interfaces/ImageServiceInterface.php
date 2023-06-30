@@ -9,7 +9,7 @@ interface ImageServiceInterface
 
     public function deleteImage($id);
 
-    public function addImagesToCollection($collectionId, array $imageIds);
+    public function addImagesToCollection(array $imageIds,$collectionId );
 
-    public function deleteImagesFromCollection($collectionId, $imageId);
+    public function deleteImagesFromCollection($collectionId, array $imageId);
 }

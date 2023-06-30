@@ -18,10 +18,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AuthService::class, function ($app) {
             return new AuthService();
         });
-        $this->app->singleton(  CollectionService::class, function ($app) {
+        $this->app->singleton(CollectionService::class, function ($app) {
             return new CollectionService();
         });
-        $this->app->singleton(  ImageService::class, function ($app) {
+        $this->app->singleton(ImageService::class, function ($app) {
             return new ImageService();
         });
     }

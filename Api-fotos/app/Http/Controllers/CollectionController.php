@@ -28,6 +28,9 @@ class CollectionController extends Controller
     {
         return $collectionService->getCollections();
     }
+    public function getMyCollections(CollectionService $collectionService){
+        return $collectionService->getMyCollections();
+    }
 
     public function getCollectionWithImages(CollectionService $collectionService,$id)
     {

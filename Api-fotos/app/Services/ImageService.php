@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Collection;
 use App\Models\Image;
 use App\Interfaces\ImageServiceInterface;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -61,108 +62,133 @@ class ImageService implements ImageServiceInterface
 }
 
 
-    public function deleteImage($image)
-    {
-        try {
-            if ($image->owner_id !== Auth::id()) {
-                return response()->json([
-                    'code' => 403,
-                    'message' => 'Unauthorized',
-                ], 403);
-            }
+public function deleteImage($image)
+{
+    try {
+        $image = Image::findOrFail($image); 
 
-            Storage::disk($image->disk)->delete($image->path);
-            $image->delete();
-
+        if ($image->owner_id !== Auth::id()) {
             return response()->json([
-                'code' => 200,
-                'message' => 'Image deleted successfully',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to delete image',
-                'error' => $e->getMessage(),
-            ], 500);
+                'code' => 403,
+                'message' => 'Unauthorized',
+            ], 403);
         }
+
+        $image->delete();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Image deleted successfully',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to delete image',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+public function addImagesToCollection(array $data, $collectionId)
+{
+    try {
+        $collection = Collection::findOrFail($collectionId);
 
-    public function addImagesToCollection($collectionId, $imageIds)
-    {
-        try {
-            $collection = Collection::findOrFail($collectionId);
-
-            if ($collection->owner_id !== Auth::id()) {
-                return response()->json([
-                    'code' => 403,
-                    'message' => 'You are not authorized to perform this action'
-                ], 403);
-            }
-
-            if (empty($imageIds) || !is_array($imageIds)) {
-                return response()->json([
-                    'code' => 400,
-                    'message' => 'No images specified'
-                ], 400);
-            }
-
-            $existingImages = Image::whereIn('id', $imageIds)->pluck('id');
-
-            if (count($imageIds) !== count($existingImages)) {
-                return response()->json([
-                    'code' => 400,
-                    'message' => 'One or more images not found'
-                ], 400);
-            }
-
-            $userImageIds = Image::where('owner_id', Auth::id())->pluck('id')->toArray();
-
-            $newImages = array_intersect($imageIds, $userImageIds);
-
-            $alreadyAssociated = $collection->images()->whereIn('image_id', $newImages)->pluck('image_id')->toArray();
-
-            $newImages = array_diff($newImages, $alreadyAssociated);
-
-            $collection->images()->attach($newImages);
-
+        if ($collection->owner_id !== Auth::id()) {
             return response()->json([
-                'code' => 200,
-                'message' => 'Images added to collection successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to add images to collection',
-                'error' => $e->getMessage()
-            ], 500);
+                'code' => 403,
+                'message' => 'You are not authorized to perform this action'
+            ], 403);
         }
-    }
 
-    public function deleteImagesFromCollection($collectionId, $imageId)
-    {
-        try {
-            $collection = Collection::findOrFail($collectionId);
-            $image = Image::findOrFail($imageId);
+        $imageIds = $data['imageIds'];
 
-            if ($collection->owner_id !== Auth::id()) {
-                return response()->json([
-                    'code' => 403,
-                    'message' => 'You are not authorized to perform this action'
-                ], 403);
-            }
-
-            $collection->images()->detach($imageId);
-
+        if (empty($imageIds) || !is_array($imageIds)) {
             return response()->json([
-                'code' => 200,
-                'message' => 'Image removed from collection successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'code' => 500,
-                'message' => 'Failed to remove image from collection',
-                'error' => $e->getMessage()
-            ], 500);
+                'code' => 400,
+                'message' => 'No images specified'
+            ], 400);
         }
+
+        $existingImages = $collection->images()->pluck('images.id')->toArray();
+        $existingImageIds = [];
+
+        foreach ($imageIds as $imageId) {
+            if (in_array($imageId, $existingImages)) {
+                $existingImageIds[] = $imageId;
+            }
+        }
+
+        if (!empty($existingImageIds)) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'One or more images already exist in the collection',
+                'existingImages' => $existingImageIds
+            ], 400);
+        }
+
+        $collection->images()->attach($imageIds);
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Images added to collection successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to add images to collection',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+
+public function deleteImagesFromCollection($collectionId, array $data)
+{
+    try {
+        $collection = Collection::findOrFail($collectionId);
+        $imageIds = $data['imageIds'];
+
+        if (!is_array($imageIds) || empty($imageIds)) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Invalid image IDs provided'
+            ], 400);
+        }
+
+        if ($collection->owner_id !== Auth::id()) {
+            return response()->json([
+                'code' => 403,
+                'message' => 'You are not authorized to perform this action'
+            ], 403);
+        }
+
+        $associatedImageIds = $collection->images()->pluck('image_id')->toArray();
+
+        // Verificar si los IDs proporcionados pertenecen a la colección
+        $invalidImageIds = array_diff($imageIds, $associatedImageIds);
+
+        if (!empty($invalidImageIds)) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'One or more image IDs do not belong to the collection',
+                'invalidImageIds' => $invalidImageIds
+            ], 400);
+        }
+
+        $collection->images()->detach($imageIds);
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Images removed from collection successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'code' => 500,
+            'message' => 'Failed to remove images from collection',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }

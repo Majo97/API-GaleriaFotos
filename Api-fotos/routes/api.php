@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/add-collection', [CollectionController::class, 'createCollection']);
     Route::patch('/edit-collection/{id}', [CollectionController::class, 'updateCollection']);
     Route::delete('/delete-collection/{id}', [CollectionController::class, 'deleteCollection']);
+    Route::get('/my-collections', [CollectionController::class, 'getMyCollections']);
     Route::get('/collections', [CollectionController::class, 'getCollections']);
     Route::get('/collection/{id}', [CollectionController::class, 'getCollectionWithImages']);
     
@@ -34,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/edit-image/{id}', [ImageController::class, 'update']);
     Route::delete('/delete-image/{id}', [ImageController::class, 'delete']);
     Route::post('/asociate-images/{id}', [ImageController::class, 'addImagesToCollection']);
-    Route::Delete('/collections/{collectionId}/images/{imageId}', [ImageController::class, 'deleteImagesToCollection']);
+    Route::Delete('/disassociate-images/{id}', [ImageController::class, 'deleteImagesFromCollection']);
 
     
 });
