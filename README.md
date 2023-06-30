@@ -1,69 +1,47 @@
-# API de Galería de Fotos
+**API de Fotografías**
 
-Este proyecto es una API para administrar imágenes y colecciones en una Galería de Fotos. Utiliza el framework Laravel y Docker con Laravel Sail para facilitar la instalación y ejecución del proyecto.
+El proyecto API de Galería de Fotos es una aplicación que proporciona una interfaz de programación de aplicaciones (API) para administrar imágenes y colecciones. Permite a los usuarios registrarse, iniciar sesión, cargar imágenes, crear y gestionar colecciones, y realizar diversas acciones relacionadas con ellas. La API se ha desarrollado utilizando el framework Laravel y sigue las convenciones RESTful para una estructura clara y fácil de usar.
 
-## Requisitos
+**Instalación y Ejecución**
 
-Antes de comenzar, asegúrate de tener los siguientes requisitos instalados en tu sistema:
+Para instalar y ejecutar el proyecto de Laravel Sail, se deben seguir los siguientes pasos en la terminal:
 
-- [Docker](https://www.docker.com/get-started)
+1. Asegurarse de tener instalado Docker y PHP 8.1 en el sistema.
+1. Clonar el repositorio del proyecto con el siguiente comando: **git clone https://github.com/Majo97/API-GaleriaFotos.git**
+1. Crear una copia del archivo **.env.example** y renombrarla como **.env**. En este archivo se deben configurar las variables de entorno, incluyendo la conexión a la base de datos MySQL.
+1. Agregar un alias a Sail para facilitar su uso en la terminal: **alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'**
+1. Instalar las dependencias de Composer con el siguiente comando: **sail composer install**
+1. Iniciar Sail con el siguiente comando: **sail up -d**
+1. Ejecutar las migraciones de la base de datos con el siguiente comando: **sail artisan migrate**
+1. Ejecutar los seeders de la base de datos con el siguiente comando: **sail artisan db:seed**
+1. Ejecutar el comando para generar la clave del proyecto: **sail artisan key:generate**
+1. Configurar el cronjob en la consola crontab para que se ejecute el script que elimina los registros de la tabla activity log, las fotos que tienen un mes de eliminadas (soft delete) y las colecciones que tienen un mes de eliminadas (soft delete).
+1. Las pruebas de integración se pueden ejecutar con el siguiente comando: **sail artisan test**
 
-#!/bin/bash
+**Endpoints**
 
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/galeria-fotos.git
+El proyecto cuenta con los siguientes endpoints:
 
-# Copiar el archivo de entorno
-cp .env.example .env
+**Rutas de Autenticación**
 
-# Agregar un alias para Laravel Sail
-alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+- **POST /register**: Permite a los usuarios registrarse en la aplicación.
+- **POST /login**: Permite a los usuarios iniciar sesión en la aplicación.
+- **POST /forgot-password**: Permite a los usuarios solicitar un correo electrónico para restablecer su contraseña en caso de olvido.
+- **POST /reset-password**: Permite a los usuarios restablecer su contraseña utilizando el enlace enviado por correo electrónico.
 
-# Instalar las dependencias de Composer
-sail composer install
+**Rutas Protegidas (Requieren Autenticación)**
 
-# Iniciar Laravel Sail
-sail up -d
+- **POST /logout**: Permite a los usuarios cerrar sesión en la aplicación.
+- **POST /add-collection**: Permite a los usuarios crear una nueva colección.
+- **PATCH /edit-collection/{id}**: Permite al propietario de la colección actualizar una colección existente.
+- **DELETE /delete-collection/{id}**: Permite al propietario de la colección eliminar una colección existente.
+- **GET /my-collections**: Obtiene todas las colecciones pertenecientes al usuario autenticado, incluyendo las públicas y privadas.
+- **GET /collections**: Obtiene todas las colecciones disponibles en la aplicación, incluyendo las públicas de otros usuarios.
+- **GET /collection/{id}**: Obtiene los detalles de una colección específica mediante su ID, incluyendo las imágenes asociadas.
+- **POST /create-image**: Permite a los usuarios crear una nueva imagen.
+- **PATCH /edit-image/{id}**: Permite al propietario de la imagen actualizar el título, descripción o tipo de una imagen existente.
+- **DELETE /delete-image/{id}**: Permite al propietario de la imagen eliminar una imagen existente.
+- **POST /asociate-images/{id}**: Permite agregar imágenes a una colección existente.
+- **DELETE /disassociate-images/{id}**: Permite eliminar imágenes de una colección existente.
 
-# Ejecutar migraciones
-sail artisan migrate
-
-# Ejecutar seeders
-sail artisan db:seed
-
-# Ajustar el cronjob
-echo "* * * * * sail artisan schedule:run >> /dev/null 2>&1" | crontab -
-
-# El cronjob se ejecutará cada minuto para ejecutar las tareas programadas de Laravel.
-# En este caso, se utiliza para limpiar la tabla de registros de actividad y eliminar de forma definitiva las colecciones e imágenes que hayan estado en la papelera durante un mes.
-# Las tareas programadas de Laravel están configuradas en el archivo `app/Console/Kernel.php`.
-
-# Mostrar instrucciones finales
-echo "¡La API de Galería de Fotos se ha instalado correctamente!"
-echo "Puedes acceder a la API a través de los siguientes endpoints:"
-echo ""
-echo "Descripción de la API:"
-echo "La API de Galería de Fotos te permite gestionar imágenes y colecciones de fotos. Los usuarios pueden registrarse, iniciar sesión, subir imágenes, crear y modificar colecciones, y más."
-echo ""
-echo "Endpoints:"
-echo "- Autenticación:"
-echo "  - POST /register: Registra un nuevo usuario."
-echo "  - POST /login: Inicia sesión y devuelve un token de acceso."
-echo "  - POST /forgot-password: Solicita un correo electrónico para restablecer la contraseña."
-echo "  - POST /reset-password: Restablece la contraseña del usuario."
-echo "- Imágenes:"
-echo "  - POST /create-image: Guarda una nueva imagen."
-echo "  - GET /images: Obtiene el listado de todas las imágenes."
-echo "  - GET /image/{id}: Obtiene los detalles de una imagen específica."
-echo "  - PATCH /edit-image/{id}: Actualiza los detalles de una imagen existente."
-echo "  - DELETE /delete-image/{id}: Elimina una imagen existente."
-echo "- Colección (de imágenes):"
-echo "  - POST /create-collection: Crea una nueva colección de imágenes."
-echo "  - GET /collections: Obtiene el listado de todas las colecciones de imágenes."
-echo "  - GET /collection/{id}: Obtiene los detalles de una colección de imágenes específica."
-echo "  - PATCH /edit-collection/{id}: Actualiza los detalles de una colección de imágenes existente."
-echo "  - DELETE /delete-collection/{id}: Elimina una colección de imágenes existente."
-echo ""
-
-# Ejecutar pruebas de integración
-sail test
+Para leer la documentación completa de los endpoints, se puede consultar el siguiente enlace: <https://documenter.getpostman.com/view/26976998/2s93z9ci6v>.

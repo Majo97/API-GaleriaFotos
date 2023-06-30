@@ -164,7 +164,6 @@ public function deleteImagesFromCollection($collectionId, array $data)
 
         $associatedImageIds = $collection->images()->pluck('image_id')->toArray();
 
-        // Verificar si los IDs proporcionados pertenecen a la colección
         $invalidImageIds = array_diff($imageIds, $associatedImageIds);
 
         if (!empty($invalidImageIds)) {
