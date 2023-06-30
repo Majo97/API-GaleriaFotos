@@ -9,7 +9,7 @@ class CreateCollectionImagesTable extends Migration
     public function up()
     {
         Schema::create('collection_images', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->uuid('image_id');
             $table->foreign('image_id')->references('id')->on('images');
             $table->uuid('collection_id');

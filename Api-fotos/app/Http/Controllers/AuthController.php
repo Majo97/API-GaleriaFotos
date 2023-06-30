@@ -7,7 +7,7 @@ use App\Http\Request\RegisterRequest;
 use App\Http\Request\LoginRequest;
 use App\Http\Request\ForgotPasswordRequest;
 use App\Http\Request\ResetPasswordRequest;
-
+use Illuminate\Http\Request;
 class AuthController extends Controller
 {
   public function register(RegisterRequest $request, AuthService $authService)
@@ -19,11 +19,10 @@ class AuthController extends Controller
     {
         return $authService->login($request->validated());
     }
-
     public function logout(AuthService $authService)
     {
-        $token = request()->user()->currentAccessToken();
-        return $authService->logout($token);
+    
+        return $authService->logout();
     }
 
     public function forgotPassword(ForgotPasswordRequest $request, AuthService $authService)

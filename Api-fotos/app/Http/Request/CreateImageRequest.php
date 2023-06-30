@@ -2,12 +2,11 @@
 
 namespace App\Http\Request;
 
-
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RegisterRequest extends FormRequest
+class CreateImageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,15 +21,16 @@ class RegisterRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => 'required|string|regex:/^[A-Za-z\s]+$/',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6',
+            'title' => 'required|string',
+            'description' => 'string',
+            'type_id' => 'required|integer',
+            'image' => 'required|image',
         ];
     }
-    /**
+      /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator

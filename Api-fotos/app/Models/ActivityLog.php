@@ -17,6 +17,9 @@ class ActivityLog extends Model
     protected $casts = [
         'previous_data' => 'json',
     ];
+    protected $attributes = [
+        'causer_id' => 0, // Valor predeterminado cuando no hay usuario autenticado
+    ];
 
     public function causer()
     {
